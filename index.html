@@ -1,1 +1,54 @@
+window.onload = function() {
+            const saved = JSON.parse(localStorage.getItem('proctorSettings'));
+            if (saved) {
+                const mainTitle = document.getElementById('mainTitle');
+                if (saved.title) {
+                    // 제목의 "외부"를 관리자가 설정한 시험명으로 치환
+                    mainTitle.innerText = mainTitle.innerText.replace("외부", saved.title);
+                }
+                document.getElementById('displayTitle').innerText = "[" + (saved.title || "시험") + " 안내]";
+                document.getElementById('displayDateTime').innerText = saved.dateTime || "미지정";
+                document.getElementById('displayLocation').innerText = saved.location || "미지정";
+                document.getElementById('displayFee').innerText = saved.fee || "미지정";
+            }
+        }
 
+        document.getElementById('applyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "제출 중...";
+
+            const saved = JSON.parse(localStorage.getItem('proctorSettings')) || { title: "미지정" };
+
+            const payload = {
+                examName: saved.title,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                position: document.querySelector('input[name="position"]:checked').value,
+                timestamp: new Date().toLocaleString('ko-KR')
+            };
+
+            try {
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                document.getElementById('applyForm').classList.add('hidden');
+                document.getElementById('infoPreview').classList.add('opacity-50');
+                document.getElementById('successMsg').classList.remove('hidden');
+                
+            } catch (err) {
+                console.error("제출 오류:", err);
+                alert("신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                btn.disabled = false;
+                btn.innerText = "위촉 신청하기";
+            }
+        });
+    </script>
+</body>
+</html>
