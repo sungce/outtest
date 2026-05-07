@@ -104,13 +104,7 @@
         document.getElementById('displayFee').innerText = saved.fee || "미지정";
     }
 }
-                document.getElementById('displayTitle').innerText = "[" + (saved.title || "시험") + " 안내]";
-                document.getElementById('displayDateTime').innerText = saved.dateTime || "미지정";
-                document.getElementById('displayLocation').innerText = saved.location || "미지정";
-                document.getElementById('displayFee').innerText = saved.fee || "미지정";
-            }
-        }
-
+             
         document.getElementById('applyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
