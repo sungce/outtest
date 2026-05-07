@@ -88,14 +88,22 @@
     <script>
         // 제출 로직 (이전 답변의 GAS URL 연동 필요)
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyDPiSRWcphLS-_7XcBcyymTEt8iv2W1zj7i7diGKpOzotu4bgMYrV_5e1yOrJ-D-Kd/exec";
-        window.onload = function() {
-            const saved = JSON.parse(localStorage.getItem('proctorSettings'));
-            if (saved) {
-                const mainTitle = document.getElementById('mainTitle');
-                if (saved.title) {
-                    // 제목의 "외부"를 관리자가 설정한 시험명으로 치환
-                    mainTitle.innerText = mainTitle.innerText.replace("외부", saved.title);
-                }
+     window.onload = function() {
+    const saved = JSON.parse(localStorage.getItem('proctorSettings'));
+    if (saved) {
+        const mainTitle = document.getElementById('mainTitle');
+        // 제목의 "외부"를 관리자가 입력한 시험명으로 치환
+        if (saved.title && mainTitle.innerText.includes("외부")) {
+            mainTitle.innerText = mainTitle.innerText.replace("외부", saved.title);
+        }
+        
+        // 안내 박스 텍스트 업데이트
+        document.getElementById('displayTitle').innerText = "[" + (saved.title || "시험") + " 안내]";
+        document.getElementById('displayDateTime').innerText = saved.dateTime || "미지정";
+        document.getElementById('displayLocation').innerText = saved.location || "미지정";
+        document.getElementById('displayFee').innerText = saved.fee || "미지정";
+    }
+}
                 document.getElementById('displayTitle').innerText = "[" + (saved.title || "시험") + " 안내]";
                 document.getElementById('displayDateTime').innerText = saved.dateTime || "미지정";
                 document.getElementById('displayLocation').innerText = saved.location || "미지정";
@@ -140,5 +148,11 @@
             }
         });
     </script>
+   <a href="admin.html" class="admin-link" title="관리자 설정">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+</a> 
 </body>
 </html>
