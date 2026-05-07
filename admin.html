@@ -1,1 +1,80 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험 감독관 관리자 설정</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="py-10 px-4">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-xl shadow-md p-8 border border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <span class="mr-2">⚙️</span> 시험 정보 설정 (관리자용)
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">시험명 (신청 페이지 제목의 "외부"를 대체합니다)</label>
+                    <input type="text" id="inputTitle" placeholder="예: 토익, 기말고사" 
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">일시</label>
+                    <input type="text" id="inputDateTime" placeholder="예: 2026년 6월 15일(토) 09:00 ~ 13:00"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">장소</label>
+                    <input type="text" id="inputLocation" placeholder="예: 본교 각 고사실"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600">감독 수당</label>
+                    <input type="text" id="inputFee" placeholder="예: 60,000원"
+                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+            </div>
+
+            <button onclick="saveSettings()" class="w-full mt-8 bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition shadow-lg">
+                설정 저장 및 적용하기
+            </button>
+            <p id="saveMsg" class="text-center text-blue-600 mt-4 font-medium hidden">✅ 설정이 저장되었습니다. 신청 페이지를 확인하세요!</p>
+        </div>
+    </div>
+
+    <script>
+        // 기존 저장된 데이터 불러오기
+        window.onload = function() {
+            const saved = JSON.parse(localStorage.getItem('proctorSettings'));
+            if (saved) {
+                document.getElementById('inputTitle').value = saved.title;
+                document.getElementById('inputDateTime').value = saved.dateTime;
+                document.getElementById('inputLocation').value = saved.location;
+                document.getElementById('inputFee').value = saved.fee;
+            }
+        }
+
+        function saveSettings() {
+            const settings = {
+                title: document.getElementById('inputTitle').value,
+                dateTime: document.getElementById('inputDateTime').value,
+                location: document.getElementById('inputLocation').value,
+                fee: document.getElementById('inputFee').value
+            };
+
+            // 브라우저 로컬 저장소에 저장 (index.html에서 읽어감)
+            localStorage.setItem('proctorSettings', JSON.stringify(settings));
+            
+            const msg = document.getElementById('saveMsg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 3000);
+        }
+    </script>
+</body>
+</html>
