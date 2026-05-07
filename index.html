@@ -1,4 +1,94 @@
-window.onload = function() {
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시험 감독관 신청</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f3f4f6; }
+        .info-box { background-color: #f0f7ff; border-left: 5px solid #3b82f6; padding: 1.5rem; color: #1e40af; }
+        
+        /* 관리자 버튼 스타일 */
+        .admin-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            color: #64748b;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        .admin-link:hover {
+            color: #1e40af;
+            transform: rotate(45deg);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="py-10 px-4">
+    <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-8">
+        <div class="text-center mb-8">
+            <h1 id="mainTitle" class="text-2xl font-bold text-gray-900">외부 시험 감독관 위촉 신청</h1>
+            <p class="text-gray-500 mt-2">정확한 정보를 입력해 주세요.</p>
+        </div>
+
+        <div id="infoPreview" class="info-box mb-8">
+            <span id="displayTitle" class="font-bold text-lg block mb-2">[시험 안내]</span>
+            <p class="text-sm md:text-base">일시: <span id="displayDateTime">관리자 설정을 확인해주세요</span></p>
+            <p class="text-sm md:text-base">장소: <span id="displayLocation">관리자 설정을 확인해주세요</span></p>
+            <p class="text-sm md:text-base">수당: <span id="displayFee">관리자 설정을 확인해주세요</span></p>
+        </div>
+
+        <form id="applyForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">성명</label>
+                <input type="text" id="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">연락처</label>
+                <input type="tel" id="phone" required placeholder="010-0000-0000" class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">직책 구분</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <label class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                        <input type="radio" name="position" value="교원" class="mr-2" checked> 교원
+                    </label>
+                    <label class="flex items-center justify-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 transition">
+                        <input type="radio" name="position" value="교직원" class="mr-2"> 교직원
+                    </label>
+                </div>
+            </div>
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-lg hover:bg-blue-700 transition shadow-lg">
+                위촉 신청하기
+            </button>
+        </form>
+
+        <div id="successMsg" class="hidden text-center py-12">
+            <div class="text-green-500 text-5xl mb-4">✓</div>
+            <h2 class="text-2xl font-bold text-gray-800">신청이 완료되었습니다!</h2>
+            <p class="text-gray-500 mt-2">구글 스프레드시트에 기록되었습니다.</p>
+            <button onclick="location.reload()" class="mt-6 text-blue-600 underline">새로 작성</button>
+        </div>
+    </div>
+
+    <a href="admin.html" class="admin-link" title="관리자 설정">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+    </a>
+
+    <script>
+        // 제출 로직 (이전 답변의 GAS URL 연동 필요)
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbyDPiSRWcphLS-_7XcBcyymTEt8iv2W1zj7i7diGKpOzotu4bgMYrV_5e1yOrJ-D-Kd/exec";
+        window.onload = function() {
             const saved = JSON.parse(localStorage.getItem('proctorSettings'));
             if (saved) {
                 const mainTitle = document.getElementById('mainTitle');
