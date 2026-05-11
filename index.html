@@ -126,9 +126,11 @@
             btn.disabled = true;
             btn.innerText = "제출 중...";
 
-            const saved = JSON.parse(localStorage.getItem('proctorSettings')) || { title: "미지정" };
+           // [수정] 관리자가 로컬 스토리지에 저장한 최신 시험 정보를 가져옵니다.
+            const saved = JSON.parse(localStorage.getItem('proctorSettings'));
+            const currentExamName = saved && saved.title ? saved.title : "미지정 시험";
             const payload = {
-                examName: saved.title,
+                examName: currentExamName, // 이제 '미지정' 대신 실제 시험명이 전달됩니다.
                 name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
                 position: document.querySelector('input[name="position"]:checked').value,
