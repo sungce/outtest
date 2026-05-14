@@ -26,7 +26,7 @@
             border: 1px solid #e2e8f0;
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 9999 !important; /* 어떤 요소보다도 위에 표시 */
+            z-index: 9999 !important;
         }
         .admin-link:hover {
             color: #2563eb;
@@ -93,24 +93,44 @@
     <script>
         const GAS_URL = "https://script.google.com/macros/s/AKfycbyDPiSRWcphLS-_7XcBcyymTEt8iv2W1zj7i7diGKpOzotu4bgMYrV_5e1yOrJ-D-Kd/exec";
 
-        // 관리자 데이터 로드 및 제목 치환
-        window.onload = function() {
+        // ✅ 핵심 수정: URL 파라미터 우선 → localStorage 차선
+        function loadSettings() {
+            const params = new URLSearchParams(window.location.search);
+
+            // URL 파라미터에서 시험명 확인
+            const urlTitle = params.get('title');
+
+            if (urlTitle) {
+                // URL 파라미터로 접속한 경우 (관리자가 공유한 링크)
+                return {
+                    title:    urlTitle,
+                    dateTime: params.get('dateTime') || '',
+                    location: params.get('location') || '',
+                    fee:      params.get('fee') || ''
+                };
+            }
+
+            // URL 파라미터 없으면 localStorage 확인 (같은 브라우저에서 직접 열 때)
             const saved = JSON.parse(localStorage.getItem('proctorSettings'));
-            if (saved) {
+            return saved || null;
+        }
+
+        // 페이지 로드 시 설정 적용
+        window.onload = function() {
+            const settings = loadSettings();
+            if (settings && settings.title) {
                 const mainTitle = document.getElementById('mainTitle');
-                if (saved.title) {
-                    mainTitle.innerText = mainTitle.innerText.replace("외부", saved.title);
-                }
-                document.getElementById('displayTitle').innerText = "[" + (saved.title || "시험") + " 안내]";
-                document.getElementById('displayDateTime').innerText = saved.dateTime || "미지정";
-                document.getElementById('displayLocation').innerText = saved.location || "미지정";
-                document.getElementById('displayFee').innerText = saved.fee || "미지정";
+                mainTitle.innerText = mainTitle.innerText.replace("외부", settings.title);
+                document.getElementById('displayTitle').innerText = "[" + settings.title + " 안내]";
+                document.getElementById('displayDateTime').innerText = settings.dateTime || "미지정";
+                document.getElementById('displayLocation').innerText = settings.location || "미지정";
+                document.getElementById('displayFee').innerText = settings.fee || "미지정";
             }
         }
 
         // 비밀번호 확인 함수
         function checkAdminPassword() {
-            const adminPassword = "1234"; // 사용할 비밀번호로 수정하세요
+            const adminPassword = "1234";
             const userInput = prompt("관리자 비밀번호를 입력하세요.");
             if (userInput === adminPassword) {
                 window.location.href = "admin.html";
@@ -126,14 +146,15 @@
             btn.disabled = true;
             btn.innerText = "제출 중...";
 
-           // [수정] 관리자가 로컬 스토리지에 저장한 최신 시험 정보를 가져옵니다.
-            const saved = JSON.parse(localStorage.getItem('proctorSettings'));
-            const currentExamName = saved && saved.title ? saved.title : "미지정 시험";
+            // ✅ 핵심 수정: URL 파라미터 우선으로 시험명 가져오기
+            const settings = loadSettings();
+            const currentExamName = (settings && settings.title) ? settings.title : "미지정 시험";
+
             const payload = {
-                examName: currentExamName, // 이제 '미지정' 대신 실제 시험명이 전달됩니다.
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                position: document.querySelector('input[name="position"]:checked').value,
+                examName:  currentExamName,
+                name:      document.getElementById('name').value,
+                phone:     document.getElementById('phone').value,
+                position:  document.querySelector('input[name="position"]:checked').value,
                 timestamp: new Date().toLocaleString('ko-KR')
             };
 
