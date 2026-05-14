@@ -150,6 +150,15 @@
         }
 
         // ── 단축 URL ──────────────────────────────────────────
+
+        // 타임아웃 래퍼 (AbortSignal.timeout 대신 Promise.race 사용 → 브라우저 호환)
+        function fetchWithTimeout(url, options, ms) {
+            const timer = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('timeout')), ms)
+            );
+            return Promise.race([fetch(url, options), timer]);
+        }
+
         async function shortenUrl() {
             const longUrl = document.getElementById('shareLink').value;
             if (!longUrl) return;
@@ -162,8 +171,12 @@
             errEl.classList.add('hidden');
             btn.disabled = true;
 
-            // 순차 시도: is.gd → tinyurl (CORS 프록시 경유)
-            const shortened = await tryIsGd(longUrl) || await tryTinyUrl(longUrl);
+            // 4가지 서비스 순차 시도
+            const shortened =
+                await tryIsGd(longUrl)          ||
+                await tryVGd(longUrl)           ||
+                await tryCorsProxy(longUrl)     ||
+                await tryAllOrigins(longUrl);
 
             loading.classList.add('hidden');
             btn.disabled = false;
@@ -171,19 +184,19 @@
             if (shortened) {
                 document.getElementById('shortUrl').value = shortened;
                 document.getElementById('shortUrlSection').classList.remove('hidden');
-                btn.classList.add('hidden'); // 성공하면 버튼 숨김
+                btn.classList.add('hidden');
             } else {
                 errEl.textContent = '❌ 단축 URL 생성에 실패했습니다. 원본 링크를 사용해주세요.';
                 errEl.classList.remove('hidden');
             }
         }
 
-        // is.gd API (CORS 지원)
+        // ① is.gd
         async function tryIsGd(url) {
             try {
-                const res = await fetch(
+                const res = await fetchWithTimeout(
                     'https://is.gd/create.php?format=simple&url=' + encodeURIComponent(url),
-                    { signal: AbortSignal.timeout(6000) }
+                    {}, 7000
                 );
                 if (!res.ok) return null;
                 const text = (await res.text()).trim();
@@ -191,17 +204,43 @@
             } catch { return null; }
         }
 
-        // TinyURL API (CORS 프록시 경유)
-        async function tryTinyUrl(url) {
+        // ② v.gd (is.gd 동일 서비스, 별도 도메인)
+        async function tryVGd(url) {
             try {
-                const res = await fetch(
-                    'https://api.allorigins.win/get?url=' +
-                    encodeURIComponent('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url)),
-                    { signal: AbortSignal.timeout(8000) }
+                const res = await fetchWithTimeout(
+                    'https://v.gd/create.php?format=simple&url=' + encodeURIComponent(url),
+                    {}, 7000
                 );
                 if (!res.ok) return null;
-                const data = await res.json();
-                const text = (data.contents || '').trim();
+                const text = (await res.text()).trim();
+                return text.startsWith('http') ? text : null;
+            } catch { return null; }
+        }
+
+        // ③ TinyURL — corsproxy.io 경유
+        async function tryCorsProxy(url) {
+            try {
+                const target = 'https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
+                const res = await fetchWithTimeout(
+                    'https://corsproxy.io/?' + encodeURIComponent(target),
+                    {}, 8000
+                );
+                if (!res.ok) return null;
+                const text = (await res.text()).trim();
+                return text.startsWith('http') ? text : null;
+            } catch { return null; }
+        }
+
+        // ④ TinyURL — allorigins.win 경유
+        async function tryAllOrigins(url) {
+            try {
+                const target = 'https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url);
+                const res = await fetchWithTimeout(
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent(target),
+                    {}, 9000
+                );
+                if (!res.ok) return null;
+                const text = (await res.text()).trim();
                 return text.startsWith('http') ? text : null;
             } catch { return null; }
         }
